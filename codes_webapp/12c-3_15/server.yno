@@ -1,0 +1,135 @@
+
+from bottle import route, run, template, static_file # importe classes utile du module Bottle
+# dependances : 
+# sudo apt-get install python-bottle
+# sudo apt-get install python-cherrypy3 (pour serveur multithread)
+
+# entete declarative
+noLoop=True # bloque loop
+
+ipLocale=Ethernet.localIP() # auto - utilise l'ip de l'interface eth0 du systeme
+#ipLocale="127.0.0.1"
+
+port=8080 # attention port doit etre au dessus de 1024 sinon permission refusee par securite - 8080 pour http
+
+#---- les routes doivent etre definies avant lancement bottle
+
+#--- gestion requetes HTML --- 
+@route('/')
+def bottleHtmlInitial():
+	return pageInitialeHTMLJS()
+
+#-- route pour gestion fichier statique pour libairie js locale 
+@route('/static/<filename:path>')
+def send_static(filename):
+	return static_file(filename, root='./static/') # utilisation chemin relatif
+	# le rep /static doit exister dans rép app *.py--
+	#return static_file(filename, root=currentdir()+'static/') # si utilisation chemin absolu
+
+#--- setup ---
+def setup():
+	
+	print "dir="+currentdir()+'static/' # debug
+	
+	run(host=ipLocale,port=port, server='cherrypy') # bottle lance automatiquement le wsgiserver de cherrypy (multithread)
+
+
+#--- fin setup
+
+# -- loop --
+def loop():
+	return
+
+# -- fin loop --
+
+#--- fonction fournissant la page HTML ---
+def pageInitialeHTMLJS():
+
+	pageHTML=( # debut page HTML
+"""
+<!DOCTYPE HTML> 
+
+		<!-- Debut de la page HTML  --> 
+     <html> 
+      
+     	<!-- Debut entete --> 
+ 	    <head> 
+ 	    
+			<meta charset="utf-8" /> <!-- Encodage de la page  --> 
+			<title>Titre</title> <!-- Titre de la page --> 
+
+"""
++includeJS()+
+"""
+
+			<!-- Debut du code Javascript  --> 
+ 			<script language="javascript" type="text/javascript"> 
+
+"""
++codeJS()+
+"""
+
+			</script> 
+			<!-- Fin du code Javascript -->     
+
+ 	    </head> 
+ 	    <!-- Fin entete --> 
+	    
+	 <!-- Debut Corps de page HTML --> 
+	<body > 
+"""
++bodyHTML()+
+"""
+     	</body> 
+     	<!-- Fin de corps de page HTML  --> 
+     	 
+     </html> 
+     <!-- Fin de la page HTML  --> 
+"""
+)  # fin page HTML
+	return pageHTML # la fonction renvoie la page HTML
+
+#------ fonction retournant le body de la page HTML ---- 
+def bodyHTML():
+	
+	bodyHTML="""
+	
+	<button style="width:50px; height:25px;" id="button">OK</button>
+ 
+"""
+	
+	return bodyHTML
+	
+	
+#------ fonction fournissant les fichiers JS a inclure -----
+def includeJS():
+	includeJS="""
+	
+	<script src="static/jquery.min.js" type="text/javascript"></script>
+
+	
+"""
+	return includeJS
+	
+	
+#------ fonction fournissant le code Javascript / jQuery de la page HTML----
+def codeJS():
+	codeJS=(
+"""
+			
+	$(document).ready(function(){
+	
+	$("#button").click(function(){
+		
+		alert("Clic bouton");
+		
+	}); // fin function + fin action + fin $
+	
+}); // fin function + fin ready + fin $ 
+
+""")
+	
+	return codeJS
+
+#--- fin du code Javascript / jQuery  --- 
+

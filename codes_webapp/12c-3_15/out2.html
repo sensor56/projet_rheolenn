@@ -1,0 +1,147 @@
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%"><span style="color: #408080; font-style: italic">#!/usr/bin/python</span>
+<span style="color: #408080; font-style: italic"># -*- coding: utf-8 -*-</span>
+
+<span style="color: #408080; font-style: italic"># code Python obtenu avec l&#39;IDE Pyduino - www.mon-club-elec.fr </span>
+
+<span style="color: #008000; font-weight: bold">from</span> <span style="color: #0000FF; font-weight: bold">pyduino_pcduino</span> <span style="color: #008000; font-weight: bold">import</span> <span style="color: #666666">*</span> <span style="color: #408080; font-style: italic"># importe les fonctions Arduino pour Python</span>
+
+<span style="color: #008000; font-weight: bold">from</span> <span style="color: #0000FF; font-weight: bold">bottle</span> <span style="color: #008000; font-weight: bold">import</span> route, run, template, static_file <span style="color: #408080; font-style: italic"># importe classes utile du module Bottle</span>
+<span style="color: #408080; font-style: italic"># dependances : </span>
+<span style="color: #408080; font-style: italic"># sudo apt-get install python-bottle</span>
+<span style="color: #408080; font-style: italic"># sudo apt-get install python-cherrypy3 (pour serveur multithread)</span>
+
+<span style="color: #408080; font-style: italic"># entete declarative</span>
+noLoop<span style="color: #666666">=</span><span style="color: #008000">True</span> <span style="color: #408080; font-style: italic"># bloque loop</span>
+
+ipLocale<span style="color: #666666">=</span>Ethernet<span style="color: #666666">.</span>localIP() <span style="color: #408080; font-style: italic"># auto - utilise l&#39;ip de l&#39;interface eth0 du systeme</span>
+<span style="color: #408080; font-style: italic">#ipLocale=&quot;127.0.0.1&quot;</span>
+
+port<span style="color: #666666">=8080</span> <span style="color: #408080; font-style: italic"># attention port doit etre au dessus de 1024 sinon permission refusee par securite - 8080 pour http</span>
+
+<span style="color: #408080; font-style: italic">#---- les routes doivent etre definies avant lancement bottle</span>
+
+<span style="color: #408080; font-style: italic">#--- gestion requetes HTML --- </span>
+<span style="color: #AA22FF">@route</span>(<span style="color: #BA2121">&#39;/&#39;</span>)
+<span style="color: #008000; font-weight: bold">def</span> <span style="color: #0000FF">bottleHtmlInitial</span>():
+	<span style="color: #008000; font-weight: bold">return</span> pageInitialeHTMLJS()
+
+<span style="color: #408080; font-style: italic">#-- route pour gestion fichier statique pour libairie js locale </span>
+<span style="color: #AA22FF">@route</span>(<span style="color: #BA2121">&#39;/static/&lt;filename:path&gt;&#39;</span>)
+<span style="color: #008000; font-weight: bold">def</span> <span style="color: #0000FF">send_static</span>(filename):
+	<span style="color: #008000; font-weight: bold">return</span> static_file(filename, root<span style="color: #666666">=</span><span style="color: #BA2121">&#39;./static/&#39;</span>) <span style="color: #408080; font-style: italic"># utilisation chemin relatif</span>
+	<span style="color: #408080; font-style: italic"># le rep /static doit exister dans rép app *.py--</span>
+	<span style="color: #408080; font-style: italic">#return static_file(filename, root=currentdir()+&#39;static/&#39;) # si utilisation chemin absolu</span>
+
+<span style="color: #408080; font-style: italic">#--- setup ---</span>
+<span style="color: #008000; font-weight: bold">def</span> <span style="color: #0000FF">setup</span>():
+	
+	<span style="color: #008000; font-weight: bold">print</span> <span style="color: #BA2121">&quot;dir=&quot;</span><span style="color: #666666">+</span>currentdir()<span style="color: #666666">+</span><span style="color: #BA2121">&#39;static/&#39;</span> <span style="color: #408080; font-style: italic"># debug</span>
+	
+	run(host<span style="color: #666666">=</span>ipLocale,port<span style="color: #666666">=</span>port, server<span style="color: #666666">=</span><span style="color: #BA2121">&#39;cherrypy&#39;</span>) <span style="color: #408080; font-style: italic"># bottle lance automatiquement le wsgiserver de cherrypy (multithread)</span>
+
+
+<span style="color: #408080; font-style: italic">#--- fin setup</span>
+
+<span style="color: #408080; font-style: italic"># -- loop --</span>
+<span style="color: #008000; font-weight: bold">def</span> <span style="color: #0000FF">loop</span>():
+	<span style="color: #008000; font-weight: bold">return</span>
+
+<span style="color: #408080; font-style: italic"># -- fin loop --</span>
+
+<span style="color: #408080; font-style: italic">#--- fonction fournissant la page HTML ---</span>
+<span style="color: #008000; font-weight: bold">def</span> <span style="color: #0000FF">pageInitialeHTMLJS</span>():
+
+	pageHTML<span style="color: #666666">=</span>( <span style="color: #408080; font-style: italic"># debut page HTML</span>
+<span style="color: #BA2121; font-style: italic">&quot;&quot;&quot;</span>
+<span style="color: #BA2121; font-style: italic">&lt;!DOCTYPE HTML&gt; </span>
+
+<span style="color: #BA2121; font-style: italic">		&lt;!-- Debut de la page HTML  --&gt; </span>
+<span style="color: #BA2121; font-style: italic">     &lt;html&gt; </span>
+<span style="color: #BA2121; font-style: italic">      </span>
+<span style="color: #BA2121; font-style: italic">     	&lt;!-- Debut entete --&gt; </span>
+<span style="color: #BA2121; font-style: italic"> 	    &lt;head&gt; </span>
+<span style="color: #BA2121; font-style: italic"> 	    </span>
+<span style="color: #BA2121; font-style: italic">			&lt;meta charset=&quot;utf-8&quot; /&gt; &lt;!-- Encodage de la page  --&gt; </span>
+<span style="color: #BA2121; font-style: italic">			&lt;title&gt;Titre&lt;/title&gt; &lt;!-- Titre de la page --&gt; </span>
+
+<span style="color: #BA2121; font-style: italic">&quot;&quot;&quot;</span>
+<span style="color: #666666">+</span>includeJS()<span style="color: #666666">+</span>
+<span style="color: #BA2121; font-style: italic">&quot;&quot;&quot;</span>
+
+<span style="color: #BA2121; font-style: italic">			&lt;!-- Debut du code Javascript  --&gt; </span>
+<span style="color: #BA2121; font-style: italic"> 			&lt;script language=&quot;javascript&quot; type=&quot;text/javascript&quot;&gt; </span>
+
+<span style="color: #BA2121; font-style: italic">&quot;&quot;&quot;</span>
+<span style="color: #666666">+</span>codeJS()<span style="color: #666666">+</span>
+<span style="color: #BA2121; font-style: italic">&quot;&quot;&quot;</span>
+
+<span style="color: #BA2121; font-style: italic">			&lt;/script&gt; </span>
+<span style="color: #BA2121; font-style: italic">			&lt;!-- Fin du code Javascript --&gt;     </span>
+
+<span style="color: #BA2121; font-style: italic"> 	    &lt;/head&gt; </span>
+<span style="color: #BA2121; font-style: italic"> 	    &lt;!-- Fin entete --&gt; </span>
+<span style="color: #BA2121; font-style: italic">	    </span>
+<span style="color: #BA2121; font-style: italic">	 &lt;!-- Debut Corps de page HTML --&gt; </span>
+<span style="color: #BA2121; font-style: italic">	&lt;body &gt; </span>
+<span style="color: #BA2121; font-style: italic">&quot;&quot;&quot;</span>
+<span style="color: #666666">+</span>bodyHTML()<span style="color: #666666">+</span>
+<span style="color: #BA2121; font-style: italic">&quot;&quot;&quot;</span>
+<span style="color: #BA2121; font-style: italic">     	&lt;/body&gt; </span>
+<span style="color: #BA2121; font-style: italic">     	&lt;!-- Fin de corps de page HTML  --&gt; </span>
+<span style="color: #BA2121; font-style: italic">     	 </span>
+<span style="color: #BA2121; font-style: italic">     &lt;/html&gt; </span>
+<span style="color: #BA2121; font-style: italic">     &lt;!-- Fin de la page HTML  --&gt; </span>
+<span style="color: #BA2121; font-style: italic">&quot;&quot;&quot;</span>
+)  <span style="color: #408080; font-style: italic"># fin page HTML</span>
+	<span style="color: #008000; font-weight: bold">return</span> pageHTML <span style="color: #408080; font-style: italic"># la fonction renvoie la page HTML</span>
+
+<span style="color: #408080; font-style: italic">#------ fonction retournant le body de la page HTML ---- </span>
+<span style="color: #008000; font-weight: bold">def</span> <span style="color: #0000FF">bodyHTML</span>():
+	
+	bodyHTML<span style="color: #666666">=</span><span style="color: #BA2121">&quot;&quot;&quot;</span>
+<span style="color: #BA2121">	</span>
+<span style="color: #BA2121">	&lt;button style=&quot;width:50px; height:25px;&quot; id=&quot;button&quot;&gt;OK&lt;/button&gt;</span>
+<span style="color: #BA2121"> </span>
+<span style="color: #BA2121">&quot;&quot;&quot;</span>
+	
+	<span style="color: #008000; font-weight: bold">return</span> bodyHTML
+	
+	
+<span style="color: #408080; font-style: italic">#------ fonction fournissant les fichiers JS a inclure -----</span>
+<span style="color: #008000; font-weight: bold">def</span> <span style="color: #0000FF">includeJS</span>():
+	includeJS<span style="color: #666666">=</span><span style="color: #BA2121">&quot;&quot;&quot;</span>
+<span style="color: #BA2121">	</span>
+<span style="color: #BA2121">	&lt;script src=&quot;static/jquery.min.js&quot; type=&quot;text/javascript&quot;&gt;&lt;/script&gt;</span>
+
+<span style="color: #BA2121">	</span>
+<span style="color: #BA2121">&quot;&quot;&quot;</span>
+	<span style="color: #008000; font-weight: bold">return</span> includeJS
+	
+	
+<span style="color: #408080; font-style: italic">#------ fonction fournissant le code Javascript / jQuery de la page HTML----</span>
+<span style="color: #008000; font-weight: bold">def</span> <span style="color: #0000FF">codeJS</span>():
+	codeJS<span style="color: #666666">=</span>(
+<span style="color: #BA2121; font-style: italic">&quot;&quot;&quot;</span>
+<span style="color: #BA2121; font-style: italic">			</span>
+<span style="color: #BA2121; font-style: italic">	$(document).ready(function(){</span>
+<span style="color: #BA2121; font-style: italic">	</span>
+<span style="color: #BA2121; font-style: italic">	$(&quot;#button&quot;).click(function(){</span>
+<span style="color: #BA2121; font-style: italic">		</span>
+<span style="color: #BA2121; font-style: italic">		alert(&quot;Clic bouton&quot;);</span>
+<span style="color: #BA2121; font-style: italic">		</span>
+<span style="color: #BA2121; font-style: italic">	}); // fin function + fin action + fin $</span>
+<span style="color: #BA2121; font-style: italic">	</span>
+<span style="color: #BA2121; font-style: italic">}); // fin function + fin ready + fin $ </span>
+
+<span style="color: #BA2121; font-style: italic">&quot;&quot;&quot;</span>)
+	
+	<span style="color: #008000; font-weight: bold">return</span> codeJS
+
+<span style="color: #408080; font-style: italic">#--- fin du code Javascript / jQuery  --- </span>
+
+
+<span style="color: #408080; font-style: italic">#--- obligatoire pour lancement du code -- </span>
+<span style="color: #008000; font-weight: bold">if</span> __name__<span style="color: #666666">==</span><span style="color: #BA2121">&quot;__main__&quot;</span>: <span style="color: #408080; font-style: italic"># pour rendre le code executable </span>
+	setup() <span style="color: #408080; font-style: italic"># appelle la fonction setup</span>
+	<span style="color: #008000; font-weight: bold">while</span> <span style="color: #AA22FF; font-weight: bold">not</span> noLoop: loop() <span style="color: #408080; font-style: italic"># appelle fonction loop sans fin</span>
+</pre></div>
