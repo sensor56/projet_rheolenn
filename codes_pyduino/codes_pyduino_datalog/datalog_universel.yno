@@ -1,0 +1,53 @@
+# entete declarative
+noLoop=True # pour utilisation auto appel de loop
+
+path="" # rep enregistrement fichiers data
+filepath="" # chemin fichier entier 
+today0="" # variable memorisation dernier jour pris en compte
+
+def setup():
+	
+	global path, filepath, today0
+	
+	# initialisation rep data
+	path=homePath()+dataPath(TEXT)  # chemin du répertoire à utiliser /home/user/data/text par defaut
+	print path # debug 
+	
+	#today0="2013_09_24" # pour test changement de date 
+
+	loop() # premier appel loop
+	
+
+def loop():
+	
+	global path, filepath, today0
+	
+	# MAJ nom fichier si changement de jour ou premier passage
+	if today0!=today("_",-1) : # si on change de jour - vrai au premier passage ! 
+		today0=today("_",-1)  # memorise jour courant  au format AAAA_MM_JJ
+		filename="data_"+today0+".txt" # nom du fichier au format data_AAAA_MM_JJtxt
+		filepath=path+filename # chemin du fichier
+		
+		print filepath  # debug
+	
+	# dans tous les cas : 
+	
+	#mesure analogique 
+	mesure=analogRead(A2) # mesure sur voie A2
+	#mesure=analogReadRepeat(A2,20) # moyenne de 20 mesures sur voie A2
+	
+	# definition ligne de donnee 
+	out=nowdatetime(-1) + ","+ str(mesure) # équivalent
+	print (out) # debug 
+	
+	#-- ajout de chaines au fichier 
+	myFile=open(filepath,'a') # ouverture pour ajout de texte
+	myFile.write(out+"\n") # ecriture d'une ligne
+	myFile.close() # fermeture du fichier en ecriture
+	
+	# auto rappel de loop 
+	timer(60000, loop) # auto appel de loop toutes les minutes = 60000 ms
+	
+	# NB : ouvrir le fichier dans l'editeur pour verifier son contenu 
+	
+# -- fin loop --

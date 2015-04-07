@@ -1,0 +1,132 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+# code Python obtenu avec l'IDE Pyduino - www.mon-club-elec.fr 
+
+from pyduino_pcduino import * # importe les fonctions Arduino pour Python
+
+
+# entete declarative
+noLoop=True # pour utilisation auto appel de loop
+
+path="" # rep enregistrement fichiers data
+filepath="" # chemin fichier entier 
+today0="" # variable memorisation dernier jour pris en compte
+
+def setup():
+	
+	# initialisation serie 
+	#Uart.begin(115200)
+	Uart.begin(115200,5, "/dev/ttyACM0") # debit, timeout, port
+	
+	delay(2000)  # laisse le temps initialisation
+	
+	while Uart.available(): # pour lire tout ce qui entre
+		chaine=Uart.waitingAll() # lit chaine en reception jusqu'a plus rien...
+		if not Uart.available(): delay(10)   # attend caracteres entrant si plus rien
+		
+	print chaine
+	Uart.println("setDebug(0)") # envoie la chaine saisie vers Uart avec saut de ligne
+	
+	while not Uart.available(): # attend caracteres entrant = attend reponse
+		pass # ne fait rien
+
+	delay(10)  # laisse le temps aux caracteres d'arriver...
+	
+	while Uart.available(): # pour lire tout ce qui entre
+		chaine=Uart.waitingAll() # lit chaine en reception jusqu'a plus rien...
+		if not Uart.available(): delay(10)   # attend caracteres entrant si plus rien - au cas ou...
+	
+	print chaine
+	delay(10)
+	
+	# initialisation fichier
+	global path, filepath, today0
+	
+	# initialisation rep data
+	path=homePath()+dataPath(TEXT)  # chemin du répertoire à utiliser /home/user/data/text par defaut
+	print path # debug 
+	
+	#today0="2013_09_24" # pour test changement de date 
+
+	loop() # premier appel loop
+	
+
+def loop():
+	
+	#gestion serie
+	#chaineSaisie=raw_input("Saisir chaine a envoyer vers uart : ")  # saisie chaine
+
+	#print chaineSaisie
+	chaine =""
+	
+	#Uart.println(chaineSaisie) # envoie la chaine saisie vers Uart avec saut de ligne
+	#Uart.println("setDebug(0)") # envoie la chaine saisie vers Uart avec saut de ligne
+	Uart.println("getStatus()") # envoie la chaine saisie vers Uart avec saut de ligne
+	
+	#while not Uart.available(): # attend caracteres entrant = attend reponse
+	#	pass # ne fait rien
+
+	delay(10)  # laisse le temps aux caracteres d'arriver...
+
+	while Uart.available(): # pour lire tout ce qui entre
+		chaine=Uart.waitingAll() # lit chaine en reception jusqu'a plus rien...
+		if not Uart.available(): delay(10)   # attend caracteres entrant si plus rien - au cas ou...
+
+	print "chaine recue = "+ chaine
+	
+	valuesList=chaine.split("|")
+	print valuesList
+	
+	if len(valuesList)==5 :  # si le nombre de valeurs voulues est recu
+		
+		# gestion fichier 
+		global path, filepath, today0
+		
+		# MAJ nom fichier si changement de jour ou premier passage
+		if today0!=today("_",-1) : # si on change de jour - vrai au premier passage ! 
+			today0=today("_",-1)  # memorise jour courant  au format AAAA_MM_JJ
+			filename="data_"+today0+".txt" # nom du fichier au format data_AAAA_MM_JJtxt
+			filepath=path+filename # chemin du fichier
+			
+			print filepath  # debug
+		
+		# dans tous les cas : 
+		
+		#mesure analogique 
+		#mesure=analogRead(A2) # mesure sur voie A2
+		#mesure=analogReadRepeat(A2,20) # moyenne de 20 mesures sur voie A2
+		
+		# definition ligne de donnee 
+		out=""
+		
+		#valuesList[2]=float(valuesList[2])*3.0 #adaptation valeur diff
+		valuesList[3]=float(valuesList[3])*10.0 #adaptation valeur on/off
+		
+		for value in valuesList[:-1]:
+			out=out+","+str(value)
+		
+		print out # debug 
+		
+		#out=nowdatetime(-1) + ","+ str(mesure) # équivalent
+		out=nowdatetime(-1) + out
+		
+		print (out) # debug 
+		
+		#-- ajout de chaines au fichier 
+		myFile=open(filepath,'a') # ouverture pour ajout de texte
+		myFile.write(out+"\n") # ecriture d'une ligne
+		myFile.close() # fermeture du fichier en ecriture
+		
+	 #-- fin if len()
+	 
+		# auto rappel de loop 
+	timer(5000, loop) # auto appel de loop toutes les minutes = 60000 ms
+	
+	# NB : ouvrir le fichier dans l'editeur pour verifier son contenu 
+	
+# -- fin loop --
+#--- obligatoire pour lancement du code -- 
+if __name__=="__main__": # pour rendre le code executable 
+	setup() # appelle la fonction setup
+	while not noLoop: loop() # appelle fonction loop sans fin
